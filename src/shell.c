@@ -4,6 +4,8 @@
 #include <string.h>
 #include "fio.h"
 #include "filesystem.h"
+#include "romfs.h"
+
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -61,14 +63,19 @@ int parse_command(char *str, char *argv[]){
 
 void ls_command(int n, char *argv[]){
 
+
+
+ls_get();
 }
 
 int filedump(const char *filename){
 	char buf[128];
 
-	int fd=fs_open(filename, 0, O_RDONLY);
 
-	if(fd==OPENFAIL)
+	int fd=fs_open(filename, 0, O_RDONLY);
+	
+	if(fd<0)
+	
 		return 0;
 
 	fio_printf(1, "\r\n");
@@ -93,11 +100,16 @@ void ps_command(int n, char *argv[]){
 void cat_command(int n, char *argv[]){
 	if(n==1){
 		fio_printf(2, "\r\nUsage: cat <filename>\r\n");
+
+/********************/
 		return;
 	}
+	
+	if(!filedump(argv[1])) fio_printf(2, "\r\n%s no such file or directory.\r\n", argv[1]);
 
-	if(!filedump(argv[1]))
-		fio_printf(2, "\r\n%s no such file or directory.\r\n", argv[1]);
+		
+	
+	
 }
 
 void man_command(int n, char *argv[]){
