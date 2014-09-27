@@ -13,7 +13,7 @@ enum HOST_SYSCALL{
 	SYS_WRITEC,
 	SYS_WRITE0,
 	SYS_WRITE,
-	SYS_READ,
+	SYS_READ=0x06,
 	SYS_READC,
 	SYS_ISERROR,
 	SYS_ISTTY,
@@ -38,7 +38,8 @@ int host_system(va_list v1);
 int host_open(va_list v1);
 int host_close(va_list v1);
 int host_write(va_list v1);
-
+int host_read(va_list v1);
+int host_flen(va_list v1);
 int host_action(enum HOST_SYSCALL action, ...);
 
 #endif 

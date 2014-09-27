@@ -26,6 +26,9 @@ void help_command(int, char **);
 void host_command(int, char **);
 void mmtest_command(int, char **);
 void test_command(int, char **);
+void history_command(int, char **);
+
+extern int his_handle;
 
 #define MKCL(n, d) {.name=#n, .fptr=n ## _command, .desc=d}
 
@@ -37,7 +40,8 @@ cmdlist cl[]={
 	MKCL(host, "Run command on host"),
 	MKCL(mmtest, "heap memory allocation test"),
 	MKCL(help, "help"),
-	MKCL(test, "test new function")
+	MKCL(test, "test new function"),
+	MKCL(history, "show command history")
 };
 
 int parse_command(char *str, char *argv[]){
@@ -63,9 +67,6 @@ int parse_command(char *str, char *argv[]){
 
 void ls_command(int n, char *argv[]){
 
-
-
-ls_get();
 }
 
 int filedump(const char *filename){
@@ -152,13 +153,46 @@ void help_command(int n,char *argv[]){
 	}
 }
 
+
+void history_command(int n,char *argv[]){
+
+
+	int handle, error;
+	handle = host_action(SYS_OPEN, "output/history", 0);
+	
+	if(handle == -1) {
+        fio_printf(1, "Open file error!\n");
+        return;
+    }
+	int len;
+	
+	char buf[512] = {0};
+	len=host_action(SYS_FLEN, handle);
+	fio_printf(1, "\n%d\n\r", len);
+
+	error = host_action(SYS_READ, handle, (void *)buf, len);
+	
+	if(error !=0) {
+            fio_printf(1, "read error.\n\r");
+            
+            return;
+        }
+	fio_printf(1, "\r\n%s\r\n",buf);
+	host_action(SYS_CLOSE, handle);
+}
+
+
 void test_command(int n, char *argv[]) {
     int handle;
     int error;
 
     fio_printf(1, "\r\n");
+		
 
+
+			
     handle = host_action(SYS_OPEN, "output/syslog", 8);
+
     if(handle == -1) {
         fio_printf(1, "Open file error!\n\r");
         return;
