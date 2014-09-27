@@ -91,6 +91,7 @@ char recv_byte()
 }
 void command_prompt(void *pvParameters)
 {
+	
 	char buf[128];
 	char *argv[20];
         char hint[] = USER_NAME "@" USER_NAME "-STM32:~$ ";
@@ -99,7 +100,7 @@ void command_prompt(void *pvParameters)
 	while(1){
 		
    fio_printf(1, "%s", hint); 
-
+		
 		fio_read(0, buf, 127);   //bug here. debuging...
 	
 		int n=parse_command(buf, argv);
@@ -111,21 +112,9 @@ void command_prompt(void *pvParameters)
 		{
 			
 			cmd_s=argv[0];  //record the cmd
-			if(strcmp(cmd_s,"history")==0)
-			{	
-				
-				host_action(SYS_CLOSE, his_handle);
-				vTaskSuspend(xTest1Task);
-				
+		
 				fptr(n, argv);
-				
-				vTaskResume(xTest1Task);
-				
-			}
-			else{
-			fptr(n, argv);
-			}
-			}
+			}	
 		else
 			fio_printf(2, "\r\n\"%s\" command not found.\r\n", argv[0]);
 	}
@@ -134,17 +123,20 @@ void command_prompt(void *pvParameters)
 
 void sys_history(void *pvParameters)  //record cmd history and ps
 {
+ 
+
+	
 	int handle, error;
 	handle = host_action(SYS_OPEN, "output/history", 4);
-	fio_printf(1, "test2\n");
-	const portTickType xDelay = 1000 / 100;
+	
+	const portTickType xDelay = 10000 / 100;
 	
 
 	if(handle == -1) {
         fio_printf(1, "Open file error!\n");
         return;
     }
-
+	
  while(1) {
 					if(cmd_s)
 					{

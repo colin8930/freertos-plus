@@ -66,7 +66,7 @@ int parse_command(char *str, char *argv[]){
 }
 
 void ls_command(int n, char *argv[]){
-
+fio_printf(1, "\r\n");
 }
 
 int filedump(const char *filename){
@@ -168,7 +168,7 @@ void history_command(int n,char *argv[]){
 	
 	char buf[512] = {0};
 	len=host_action(SYS_FLEN, handle);
-	fio_printf(1, "\n%d\n\r", len);
+
 
 	error = host_action(SYS_READ, handle, (void *)buf, len);
 	
@@ -186,7 +186,7 @@ void test_command(int n, char *argv[]) {
     int handle;
     int error;
 
-    fio_printf(1, "\r\n");
+
 		
 
 
