@@ -27,6 +27,7 @@ extern const unsigned char _sromfs;
 volatile xSemaphoreHandle serial_tx_wait_sem = NULL;
 /* Add for serial input */
 volatile xQueueHandle serial_rx_queue = NULL;
+char *cmd_s;
 
 /* IRQ handler to handle USART2 interruptss (both transmit and receive
  * interrupts). */
@@ -93,7 +94,7 @@ void command_prompt(void *pvParameters)
 
 	fio_printf(1, "\rWelcome to FreeRTOS Shell\r\n");
 	while(1){
-                fio_printf(1, "%s", hint);
+                fio_printf(1, "%s", hint); 
 		fio_read(0, buf, 127);
 	
 		int n=parse_command(buf, argv);
@@ -101,10 +102,60 @@ void command_prompt(void *pvParameters)
 		/* will return pointer to the command function */
 		cmdfunc *fptr=do_command(argv[0]);
 		if(fptr!=NULL)
+		{
 			fptr(n, argv);
+			cmd_s=argv[0];  //record the cmd
+			}
 		else
 			fio_printf(2, "\r\n\"%s\" command not found.\r\n", argv[0]);
 	}
+
+}
+
+void sysinfo(void *pvParameters)  //record cmd history and ps
+{
+	int handle, error;
+	handle = host_action(SYS_OPEN, "output/sysinfo", 4);
+	char output[512] = {0};
+
+	signed char buf[1024];
+	const portTickType xDelay = 100000 / 100;
+	fio_printf(1, "Open file error!\n");
+
+	if(handle == -1) {
+        fio_printf(1, "Open file error!\n");
+        return;
+    }
+
+ while(1) {
+					if(cmd_s)
+					{
+        
+        error = host_action(SYS_WRITE, handle, (void *)cmd_s, strlen(cmd_s));
+        if(error != 0) {
+            fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
+            host_action(SYS_CLOSE, handle);
+            return;
+  			   		   }
+					}
+						else continue;
+        vTaskList(buf);
+
+        memcpy(output, (char *)(buf + 2), strlen((char *)buf) - 2);
+
+        error = host_action(SYS_WRITE, handle, (void *)buf, strlen((char *)buf));
+					cmd_s=NULL;
+        if(error != 0) {
+            fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
+            host_action(SYS_CLOSE, handle);
+            return;
+        }
+
+        vTaskDelay(xDelay);
+    }
+    
+    host_action(SYS_CLOSE, handle);
+
 
 }
 
@@ -170,6 +221,9 @@ int main()
 	            (signed portCHAR *) "CLI",
 	            512 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
 
+	xTaskCreate(sysinfo,
+	           (signed char*) "sysinfo",
+	            1024 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
 #if 0
 	/* Create a task to record system log. */
 	xTaskCreate(system_logger,
