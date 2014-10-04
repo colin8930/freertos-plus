@@ -30,6 +30,10 @@ void history_command(int, char **);
 
 extern int his_handle;
 
+static uint32_t get_unaligned(const uint8_t * d) {
+ return ((uint32_t) d[0]) | ((uint32_t) (d[1] << 8)) | ((uint32_t) (d[2] << 16)) | ((uint32_t) (d[3] << 24));
+}
+
 #define MKCL(n, d) {.name=#n, .fptr=n ## _command, .desc=d}
 
 cmdlist cl[]={
@@ -66,7 +70,18 @@ int parse_command(char *str, char *argv[]){
 }
 
 void ls_command(int n, char *argv[]){
-fio_printf(1, "\r\n");
+
+
+char* fs_list [20];
+int size=fs_ls(fs_list);
+
+for(int i=0; i<size; i++)
+{
+	 fio_printf(1,"\r\n%s",fs_list[i]);
+	 
+
+}
+ fio_printf(2,"\r\n");
 }
 
 int filedump(const char *filename){
@@ -186,11 +201,7 @@ void test_command(int n, char *argv[]) {
     int handle;
     int error;
 
-
 		
-
-
-			
     handle = host_action(SYS_OPEN, "output/syslog", 8);
 
     if(handle == -1) {

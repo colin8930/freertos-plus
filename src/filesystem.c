@@ -1,7 +1,7 @@
 #include "osdebug.h"
 #include "filesystem.h"
 #include "fio.h"
-
+#include "clib.h"
 #include <stdint.h>
 #include <string.h>
 #include <hash-djb2.h>
@@ -11,6 +11,7 @@
 struct fs_t {
     uint32_t hash;
     fs_open_t cb;
+    fs_ls_t lscb;			
     void * opaque;
 };
 
@@ -20,13 +21,16 @@ __attribute__((constructor)) void fs_init() {
     memset(fss, 0, sizeof(fss));
 }
 
-int register_fs(const char * mountpoint, fs_open_t callback, void * opaque) {
+
+
+int register_fs(const char * mountpoint, fs_open_t callback, fs_ls_t ls_callback, void * opaque) {
     int i;
     DBGOUT("register_fs(\"%s\", %p, %p)\r\n", mountpoint, callback, opaque);
     
     for (i = 0; i < MAX_FS; i++) {
         if (!fss[i].cb) {
             fss[i].hash = hash_djb2((const uint8_t *) mountpoint, -1);
+	 fss[i].lscb=ls_callback;							
             fss[i].cb = callback;
             fss[i].opaque = opaque;
             return 0;
@@ -48,15 +52,23 @@ int fs_open(const char * path, int flags, int mode) {
     slash = strchr(path, '/');
     
     if (!slash)
+			
         return -2;
 
     hash = hash_djb2((const uint8_t *) path, slash - path);
     path = slash + 1;
-
-    for (i = 0; i < MAX_FS; i++) {
-        if (fss[i].hash == hash)
-            return fss[i].cb(fss[i].opaque, path, flags, mode);
+			
+    for (i = 0; i < MAX_FS; i++) {				
+        if (fss[i].hash == hash){
+								
+            return fss[i].cb(fss[i].opaque, path, flags, mode);}
     }
-    
+   
     return -2;
+}
+
+int fs_ls(char* ls_list[]) {
+                              
+            return fss[0].lscb(fss[0].opaque, ls_list);
+
 }
