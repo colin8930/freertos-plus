@@ -30,9 +30,6 @@ void history_command(int, char **);
 
 extern int his_handle;
 
-static uint32_t get_unaligned(const uint8_t * d) {
- return ((uint32_t) d[0]) | ((uint32_t) (d[1] << 8)) | ((uint32_t) (d[2] << 16)) | ((uint32_t) (d[3] << 24));
-}
 
 #define MKCL(n, d) {.name=#n, .fptr=n ## _command, .desc=d}
 
@@ -79,7 +76,6 @@ for(int i=0; i<size; i++)
 {
 	 fio_printf(1,"\r\n%s",fs_list[i]);
 	 
-
 }
  fio_printf(2,"\r\n");
 }
@@ -123,9 +119,7 @@ void cat_command(int n, char *argv[]){
 	
 	if(!filedump(argv[1])) fio_printf(2, "\r\n%s no such file or directory.\r\n", argv[1]);
 
-		
-	
-	
+
 }
 
 void man_command(int n, char *argv[]){
