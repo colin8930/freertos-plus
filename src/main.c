@@ -99,21 +99,18 @@ void command_prompt(void *pvParameters)
 	fio_printf(1, "\rWelcome to FreeRTOS Shell\r\n");
 	while(1){
 		
-   fio_printf(1, "%s", hint); 
+   		fio_printf(1, "%s", hint);
 		
-		fio_read(0, buf, 127);   //bug here. debuging...
+		fio_read(0, buf, 127);
 	
 		int n=parse_command(buf, argv);
 
 		/* will return pointer to the command function */
 		cmdfunc *fptr=do_command(argv[0]);
 		
-		if(fptr!=NULL)
-		{
-			
+		if(fptr!=NULL){			
 			cmd_s=argv[0];  //record the cmd
-		
-				fptr(n, argv);
+			fptr(n, argv);
 			}	
 		else
 			fio_printf(2, "\r\n\"%s\" command not found.\r\n", argv[0]);
@@ -123,41 +120,35 @@ void command_prompt(void *pvParameters)
 
 void sys_history(void *pvParameters)  //record cmd history and ps
 {
- 
-
 	
 	int handle, error;
 	handle = host_action(SYS_OPEN, "output/history", 4);
-	
 	const portTickType xDelay = 10000 / 100;
 	
 
 	if(handle == -1) {
-        fio_printf(1, "Open file error!\n");
-        return;
-    }
+    	    fio_printf(1, "Open file error!\n");
+    	    return;
+    	}
 	
- while(1) {
-					if(cmd_s)
-					{
-								
-        error = host_action(SYS_WRITE, handle, (void *)cmd_s, strlen(cmd_s));
-					cmd_s=NULL;
-        if(error != 0) {
-            fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
-            host_action(SYS_CLOSE, handle);
-            return;
-  			   		   }
-						host_action(SYS_WRITE, handle, (void *)"\n\r", strlen("\n\r"));
-					}
-						else continue;
-       				vTaskDelay(xDelay);
+ 	while(1) {
+
+		if(cmd_s){	
+
+			error = host_action(SYS_WRITE, handle, (void *)cmd_s, strlen(cmd_s));
+			cmd_s=NULL;
+       			 if(error != 0) {
+				fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
+				host_action(SYS_CLOSE, handle);
+           			return;
+			 }
+			host_action(SYS_WRITE, handle, (void *)"\n\r", strlen("\n\r"));
+		}
+		else continue;
+		vTaskDelay(xDelay);
         }
-
-      
-    
+   
     host_action(SYS_CLOSE, handle);
-
 
 }
 

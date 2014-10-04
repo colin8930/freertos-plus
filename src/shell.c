@@ -68,16 +68,13 @@ int parse_command(char *str, char *argv[]){
 
 void ls_command(int n, char *argv[]){
 
+	char* fs_list [20];
+	int size=fs_ls(fs_list);
 
-char* fs_list [20];
-int size=fs_ls(fs_list);
-
-for(int i=0; i<size; i++)
-{
-	 fio_printf(1,"\r\n%s",fs_list[i]);
-	 
-}
- fio_printf(2,"\r\n");
+	for(int i=0; i<size; i++){
+		 fio_printf(1,"\r\n%s",fs_list[i]);	 
+		}
+ 	fio_printf(2,"\r\n");
 }
 
 int filedump(const char *filename){
@@ -164,7 +161,6 @@ void help_command(int n,char *argv[]){
 
 
 void history_command(int n,char *argv[]){
-
 
 	int handle, error;
 	handle = host_action(SYS_OPEN, "output/history", 0);

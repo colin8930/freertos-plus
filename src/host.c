@@ -21,8 +21,8 @@ const hostcmdlist hcl[23]={
     [SYS_CLOSE] = MKHCL(SYS_CLOSE, close),
     [SYS_WRITE] = MKHCL(SYS_WRITE, write),
     [SYS_SYSTEM] = MKHCL(SYS_SYSTEM, system),
-			[SYS_READ] = MKHCL(SYS_READ, read),
-			[SYS_FLEN]= MKHCL(SYS_FLEN, flen),
+    [SYS_READ] = MKHCL(SYS_READ, read),
+    [SYS_FLEN]= MKHCL(SYS_FLEN, flen),
 };
 
 /*action will be in r0, and argv in r1*/

@@ -105,16 +105,15 @@ static int romfs_open(void * opaque, const char * path, int flags, int mode) {
 }
 
 static int romfs_ls(void * opaque, char* ls_list[]) {
-uint8_t * meta=(uint8_t *)opaque;
-int count=0;
-while(get_unaligned(meta) && get_unaligned(meta + 4))
- {
-ls_list[0]=(char*)meta+8;
-ls_list++;
-count++;
- long int a=get_unaligned((meta+4));
- meta=meta+(20+a);
- }
+    uint8_t * meta=(uint8_t *)opaque;
+    int count=0;
+    while(get_unaligned(meta) && get_unaligned(meta + 4)){
+        ls_list[0]=(char*)meta+8;
+        ls_list++;
+        count++;
+        long int a=get_unaligned((meta+4));
+        meta=meta+(20+a);
+    }
  return count;
 }
 

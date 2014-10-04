@@ -30,7 +30,7 @@ int register_fs(const char * mountpoint, fs_open_t callback, fs_ls_t ls_callback
     for (i = 0; i < MAX_FS; i++) {
         if (!fss[i].cb) {
             fss[i].hash = hash_djb2((const uint8_t *) mountpoint, -1);
-	 fss[i].lscb=ls_callback;							
+            fss[i].lscb=ls_callback;							
             fss[i].cb = callback;
             fss[i].opaque = opaque;
             return 0;
@@ -61,7 +61,8 @@ int fs_open(const char * path, int flags, int mode) {
     for (i = 0; i < MAX_FS; i++) {				
         if (fss[i].hash == hash){
 								
-            return fss[i].cb(fss[i].opaque, path, flags, mode);}
+            return fss[i].cb(fss[i].opaque, path, flags, mode);
+        }
     }
    
     return -2;
