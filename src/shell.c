@@ -5,11 +5,10 @@
 #include "fio.h"
 #include "filesystem.h"
 #include "romfs.h"
-
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "host.h"
+#include <math.h>
 
 typedef struct {
 	const char *name;
@@ -29,7 +28,7 @@ void test_command(int, char **);
 void history_command(int, char **);
 
 extern int his_handle;
-
+extern int fibonacci(int x);
 
 #define MKCL(n, d) {.name=#n, .fptr=n ## _command, .desc=d}
 
@@ -187,27 +186,28 @@ void history_command(int n,char *argv[]){
 }
 
 
+
 void test_command(int n, char *argv[]) {
-    int handle;
-    int error;
+	int handle;
+	int error;
 
-		
-    handle = host_action(SYS_OPEN, "output/syslog", 8);
+	int input=strtoint(argv[1]);	
+	handle = host_action(SYS_OPEN, "output/fib", 8);
+	
+	if(handle == -1) {
+		fio_printf(1, "Open file error!\n\r");
+		return;
+	}
+	int fib = fibonacci(input);
+	
+	error = host_action(SYS_WRITE, handle,&fib, sizeof(int));
+	if(error != 0) {
+        		fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
+		host_action(SYS_CLOSE, handle);
+		return;
+	}
 
-    if(handle == -1) {
-        fio_printf(1, "Open file error!\n\r");
-        return;
-    }
-
-    char *buffer = "Test host_write function which can write data to output/syslog\n";
-    error = host_action(SYS_WRITE, handle, (void *)buffer, strlen(buffer));
-    if(error != 0) {
-        fio_printf(1, "Write file error! Remain %d bytes didn't write in the file.\n\r", error);
-        host_action(SYS_CLOSE, handle);
-        return;
-    }
-
-    host_action(SYS_CLOSE, handle);
+   	 host_action(SYS_CLOSE, handle);
 }
 
 cmdfunc *do_command(const char *cmd){
@@ -219,4 +219,23 @@ cmdfunc *do_command(const char *cmd){
 			return cl[i].fptr;
 	}
 	return NULL;	
+}
+
+int strtoint(char * arg)
+{
+	int len = sizeof(arg)/2;
+	int result=0;
+	for(int i=0; i<len; i++){
+		result+=(arg[i]-48)*power(10,len-i-1);
+	}
+	return result;
+}
+
+int power(int base, int exp)
+{
+	int result=1;
+	for(int i=0; i<exp; i++){
+		result*=base;
+	}
+	return result;
 }

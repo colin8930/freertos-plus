@@ -1,6 +1,21 @@
 file build/main.elf
 target remote :3333
-
 b main
-
 c
+b 212
+c
+Set $test=1
+b shell.c:196
+b shell.c:211
+
+WHILE($test<20)
+
+j shell.c:191
+
+Set var input=$test
+Set $test=$test+1
+c
+p fib
+
+
+end
