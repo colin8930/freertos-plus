@@ -4,18 +4,29 @@ b main
 c
 b 212
 c
-Set $test=1
+Set $i=1
 b shell.c:196
 b shell.c:211
-
-WHILE($test<20)
-
+Set $test1=0
+Set $test2=1
 j shell.c:191
-
-Set var input=$test
-Set $test=$test+1
+Set var input=$i
+Set $i=$i+1
 c
 p fib
+Set $stop=0
+WHILE($i<50&!$stop)
+j shell.c:191
 
-
+Set var input=$i
+Set $i=$i+1
+c
+p fib
+if fib==$test1+$test2&&fib>=0
+Set $test1=$test2
+Set $test2=fib
+else
+printf "error at input = \"%d\"",$i
+Set $stop=1
+end
 end
