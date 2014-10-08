@@ -1,5 +1,14 @@
 file build/main.elf
 target remote :3333
+
+define test_fib
+	j shell.c:191
+	Set var input=$arg0
+	Set $arg0=$arg0+1
+	c
+	 p fib
+end
+
 b main
 c
 b 212
@@ -9,24 +18,17 @@ b shell.c:196
 b shell.c:211
 Set $test1=0
 Set $test2=1
-j shell.c:191
-Set var input=$i
-Set $i=$i+1
-c
-p fib
+test_fib $i
 Set $stop=0
 WHILE($i<50&!$stop)
-j shell.c:191
 
-Set var input=$i
-Set $i=$i+1
-c
-p fib
-if fib==$test1+$test2&&fib>=0
-Set $test1=$test2
-Set $test2=fib
-else
-printf "error at input = \"%d\"",$i
-Set $stop=1
-end
+	test_fib $i
+
+	if fib==$test1+$test2&&fib>=0
+		Set $test1=$test2
+		Set $test2=fib
+	else
+		printf "error at input = \"%d\"",$i
+		set $stop=1
+	end
 end
